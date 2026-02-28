@@ -188,7 +188,7 @@ function MenuCard({ item, delay }: { item: MenuItem; delay: number }) {
           <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/10 to-transparent" />
 
           {/* Gold price badge — animates on variant change */}
-          <div className="absolute top-3 right-3 min-w-[46px] h-[46px] bg-[#C6A75E] rounded-full flex items-center justify-center px-2 transition-transform duration-300">
+          <div className="absolute top-2 right-2 sm:top-3 sm:right-3 min-w-[40px] h-[40px] sm:min-w-[46px] sm:h-[46px] bg-[#C6A75E] rounded-full flex items-center justify-center px-1.5 sm:px-2 transition-transform duration-300">
             <span
               key={currentPrice}
               className="font-['Poppins',sans-serif] text-black text-[11px] text-center leading-tight animate-price-pop"
@@ -310,7 +310,7 @@ export function MenuSection() {
         {/* ── Main Dishes (consolidated — 3 cards instead of 6) ─── */}
         <div className="mt-16">
           <CategoryHeading label="Main Dishes" />
-          <div className="grid grid-cols-2 sm:grid-cols-3 gap-4 md:gap-5">
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 md:gap-5">
             {mainDishItems.map((item, i) => (
               <MenuCard key={item.name} item={item} delay={i * 0.07} />
             ))}

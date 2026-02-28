@@ -50,7 +50,7 @@ export function BranchSection() {
         <div className="grid lg:grid-cols-2 gap-12 items-stretch">
           {/* Map */}
           <AnimatedSection className="h-full">
-            <div className="overflow-hidden h-[340px] md:h-[460px] lg:h-full min-h-[460px] border border-white/10">
+            <div className="overflow-hidden h-[300px] md:h-[460px] lg:h-full lg:min-h-[460px] border border-white/10">
               <iframe
                 title="Tehari Ghar Location"
                 src="https://maps.google.com/maps?q=23.7477,90.3728&hl=en&z=17&output=embed"
@@ -59,7 +59,6 @@ export function BranchSection() {
                 className="w-full h-full border-0"
                 style={{
                   display: "block",
-                  minHeight: "460px",
                   filter: "grayscale(1) invert(0.88) brightness(0.9) contrast(1.05)",
                 }}
                 allowFullScreen
