@@ -2,7 +2,7 @@ import { motion } from "motion/react";
 import { ImageWithFallback } from "./figma/ImageWithFallback";
 
 const heroImage =
-  "https://images.unsplash.com/photo-1768700439948-16e9c0daee3e?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxiaXJ5YW5pJTIwa2FjY2hpJTIwcmljZSUyMHRyYWRpdGlvbmFsfGVufDF8fHx8MTc3MjIxNzA0NHww&ixlib=rb-4.1.0&q=80&w=1080&utm_source=figma&utm_medium=referral";
+  "/images/hero.png";
 
 export function HeroSection() {
   return (

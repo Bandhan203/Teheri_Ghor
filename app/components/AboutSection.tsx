@@ -1,8 +1,8 @@
 import { AnimatedSection } from "./AnimatedSection";
 import { ImageWithFallback } from "./figma/ImageWithFallback";
 
-const ownerImage =
-  "https://images.unsplash.com/photo-1759521296144-fe6f2d2dc769?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxyZXN0YXVyYW50JTIwb3duZXIlMjBjaGVmJTIwcG9ydHJhaXR8ZW58MXx8fHwxNzcyMTQ2ODQwfDA&ixlib=rb-4.1.0&q=80&w=1080&utm_source=figma&utm_medium=referral";
+const ownerImage ="/images/profile.png"
+  ;
 
 export function AboutSection() {
   return (
