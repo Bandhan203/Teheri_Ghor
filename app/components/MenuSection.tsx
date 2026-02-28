@@ -1,7 +1,24 @@
+import { useState } from "react";
 import { AnimatedSection } from "./AnimatedSection";
 import { ImageWithFallback } from "./figma/ImageWithFallback";
 
-const menuItems = [
+/* ── Types ────────────────────────────────────────────────────────── */
+interface Variant {
+  label: string;
+  price: string;
+}
+
+interface MenuItem {
+  name: string;
+  image: string;
+  desc: string;
+  /** Single-size items use price; multi-size items use variants */
+  price?: string;
+  variants?: Variant[];
+}
+
+/* ── Data ─────────────────────────────────────────────────────────── */
+const menuItems: MenuItem[] = [
   {
     name: "Mutton Kacchi",
     price: "240",
@@ -28,36 +45,25 @@ const menuItems = [
   },
 ];
 
-const mainDishItems = [
+const mainDishItems: MenuItem[] = [
   {
-    name: "Special Beef Tehari (Half)",
-    price: "180",
-    image: "/images/special-beef-tehari-half.jpg",
-    desc: "Fragrant beef tehari — half portion",
+    name: "Special Beef Tehari",
+    image: "/images/beef-tehari.jpg",
+    desc: "Fragrant signature beef tehari — pick your portion",
+    variants: [
+      { label: "Half", price: "180" },
+      { label: "Quarter", price: "180" },
+      { label: "Full", price: "380" },
+    ],
   },
   {
-    name: "Special Beef Tehari (Quarter)",
-    price: "180",
-    image: "/images/special-beef-tehari-quarter.jpg",
-    desc: "Flavourful beef tehari — quarter portion",
-  },
-  {
-    name: "Special Beef Tehari (Full)",
-    price: "380",
-    image: "/images/special-beef-tehari-full.jpg",
-    desc: "Hearty full serving of our signature beef tehari",
-  },
-  {
-    name: "Morog Polao (Half)",
-    price: "180",
-    image: "/images/morog-polao-half.jpg",
-    desc: "Tender chicken with golden aromatic rice — half",
-  },
-  {
-    name: "Morog Polao (Full)",
-    price: "350",
-    image: "/images/morog-polao-full.jpg",
-    desc: "Tender chicken with golden aromatic rice — full",
+    name: "Morog Polao",
+    image: "/images/morog-polao.jpg",
+    desc: "Tender chicken with golden aromatic rice",
+    variants: [
+      { label: "Half", price: "180" },
+      { label: "Full", price: "350" },
+    ],
   },
   {
     name: "Bhuna Khichuri",
@@ -67,24 +73,16 @@ const mainDishItems = [
   },
 ];
 
-const beverageItems = [
+const beverageItems: MenuItem[] = [
   {
-    name: "Borhani (250 ml)",
-    price: "60",
-    image: "/images/borhani-250ml.jpg",
-    desc: "Spiced yogurt drink — small glass",
-  },
-  {
-    name: "Borhani (Half Liter)",
-    price: "99",
-    image: "/images/borhani-half-liter.jpg",
-    desc: "Spiced yogurt drink — half litre bottle",
-  },
-  {
-    name: "Borhani (1 Liter)",
-    price: "199",
-    image: "/images/borhani-1-liter.jpg",
-    desc: "Spiced yogurt drink — full litre bottle",
+    name: "Borhani",
+    image: "/images/borhani.jpg",
+    desc: "Traditional spiced yogurt drink",
+    variants: [
+      { label: "250 ml", price: "60" },
+      { label: "Half Liter", price: "99" },
+      { label: "1 Liter", price: "199" },
+    ],
   },
   {
     name: "Phirni",
@@ -106,25 +104,79 @@ const beverageItems = [
   },
 ];
 
-/* ── Compact 6-column card ────────────────────────────────────────── */
-function MenuCard({
-  item,
-  delay,
+/* ── Size Toggle Segmented Control ────────────────────────────────── */
+function SizeToggle({
+  variants,
+  activeIndex,
+  onChange,
 }: {
-  item: { name: string; price: string; image: string; desc: string };
-  delay: number;
+  variants: Variant[];
+  activeIndex: number;
+  onChange: (i: number) => void;
 }) {
   return (
-    <AnimatedSection delay={delay}>
-      {/* Fitts's Law: entire card is the tap target */}
+    <div
+      className="flex w-full rounded-lg bg-white/[0.06] border border-white/[0.06] p-1 gap-1 overflow-x-auto scrollbar-hide"
+      role="radiogroup"
+      aria-label="Select size"
+    >
+      {variants.map((v, i) => {
+        const active = i === activeIndex;
+        return (
+          <button
+            key={v.label}
+            type="button"
+            role="radio"
+            aria-checked={active}
+            onClick={(e) => {
+              e.preventDefault();
+              e.stopPropagation();
+              onChange(i);
+            }}
+            className={`
+              relative flex-1 min-w-0 px-3 py-[7px] rounded-md text-[11px] font-['Poppins',sans-serif]
+              whitespace-nowrap text-center
+              transition-all duration-250 cursor-pointer select-none
+              focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-[#C6A75E]
+              ${
+                active
+                  ? "bg-[#D4AF37] text-black shadow-[0_2px_12px_rgba(212,175,55,0.4)]"
+                  : "text-white/45 hover:text-white/75 hover:bg-white/[0.06]"
+              }
+            `}
+            style={{ fontWeight: active ? 700 : 500, letterSpacing: "0.02em" }}
+          >
+            {v.label}
+          </button>
+        );
+      })}
+    </div>
+  );
+}
+
+/* ── Menu Card (supports both single-price & variant items) ──────── */
+function MenuCard({ item, delay }: { item: MenuItem; delay: number }) {
+  const hasVariants = !!item.variants && item.variants.length > 0;
+  const [activeIdx, setActiveIdx] = useState(0);
+
+  const currentPrice = hasVariants
+    ? item.variants![activeIdx].price
+    : item.price ?? "";
+
+  const orderLabel = hasVariants
+    ? `${item.name} (${item.variants![activeIdx].label})`
+    : item.name;
+
+  return (
+    <AnimatedSection delay={delay} className="h-full">
       <a
         href="https://wa.me/8801763567277"
         target="_blank"
         rel="noopener noreferrer"
-        className="group block bg-[#111111] overflow-hidden hover:bg-[#181818] transition-colors duration-400 cursor-pointer"
-        aria-label={`Order ${item.name}`}
+        className="group flex flex-col h-full bg-[#111111] overflow-hidden hover:bg-[#181818] transition-colors duration-400 cursor-pointer"
+        aria-label={`Order ${orderLabel}`}
       >
-        {/* Square image area — aspect-ratio keeps uniform height across cols */}
+        {/* Square image */}
         <div className="relative w-full aspect-square overflow-hidden">
           <ImageWithFallback
             src={item.image}
@@ -132,20 +184,21 @@ function MenuCard({
             className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
           />
 
-          {/* Bottom gradient for name legibility (Law of Figure-Ground) */}
+          {/* Gradient overlay */}
           <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/10 to-transparent" />
 
-          {/* Gold price badge — top-right (F-pattern scan) */}
-          <div className="absolute top-3 right-3 min-w-[46px] h-[46px] bg-[#C6A75E] rounded-full flex items-center justify-center px-2">
+          {/* Gold price badge — animates on variant change */}
+          <div className="absolute top-3 right-3 min-w-[46px] h-[46px] bg-[#C6A75E] rounded-full flex items-center justify-center px-2 transition-transform duration-300">
             <span
-              className="font-['Poppins',sans-serif] text-black text-[11px] text-center leading-tight"
+              key={currentPrice}
+              className="font-['Poppins',sans-serif] text-black text-[11px] text-center leading-tight animate-price-pop"
               style={{ fontWeight: 800 }}
             >
-              {item.price === "MRP" ? "MRP" : `${item.price}৳`}
+              {currentPrice === "MRP" ? "MRP" : `${currentPrice}৳`}
             </span>
           </div>
 
-          {/* Hover CTA overlay — Fitts's Law: large target, revealed on intent */}
+          {/* Hover CTA overlay */}
           <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300 bg-black/40">
             <span className="font-['Poppins',sans-serif] text-[#C6A75E] text-[11px] tracking-[0.2em] uppercase border border-[#C6A75E] px-4 py-2">
               Order Now
@@ -153,22 +206,52 @@ function MenuCard({
           </div>
         </div>
 
-        {/* Text content */}
-        <div className="px-3 pt-3 pb-4">
-          <h3
-            className="font-['Playfair_Display',serif] text-white text-[14px] leading-snug mb-1 group-hover:text-[#C6A75E] transition-colors duration-300"
-            style={{ fontWeight: 600 }}
-          >
-            {item.name}
-          </h3>
-          <p
-            className="font-['Poppins',sans-serif] text-white/35 text-[11px] leading-[1.6] line-clamp-2"
-            style={{ fontWeight: 300 }}
-          >
-            {item.desc}
-          </p>
+        {/* Text + optional toggle */}
+        <div className="px-3 pt-3 pb-4 flex flex-col gap-2 flex-1">
+          <div>
+            <h3
+              className="font-['Playfair_Display',serif] text-white text-[14px] leading-snug mb-1 group-hover:text-[#C6A75E] transition-colors duration-300"
+              style={{ fontWeight: 600 }}
+            >
+              {item.name}
+            </h3>
+            <p
+              className="font-['Poppins',sans-serif] text-white/35 text-[11px] leading-[1.6] line-clamp-2"
+              style={{ fontWeight: 300 }}
+            >
+              {item.desc}
+            </p>
+          </div>
+
+          {/* Size toggle — full-width segmented control below description */}
+          {hasVariants && (
+            <SizeToggle
+              variants={item.variants!}
+              activeIndex={activeIdx}
+              onChange={setActiveIdx}
+            />
+          )}
         </div>
       </a>
+
+      {/* Keyframe for the price pop animation + scrollbar-hide utility */}
+      <style>{`
+        @keyframes pricePop {
+          0%   { transform: scale(0.7); opacity: 0; }
+          60%  { transform: scale(1.12); }
+          100% { transform: scale(1);   opacity: 1; }
+        }
+        .animate-price-pop {
+          animation: pricePop 0.3s ease-out;
+        }
+        .scrollbar-hide {
+          -ms-overflow-style: none;
+          scrollbar-width: none;
+        }
+        .scrollbar-hide::-webkit-scrollbar {
+          display: none;
+        }
+      `}</style>
     </AnimatedSection>
   );
 }
@@ -177,7 +260,6 @@ function MenuCard({
 function CategoryHeading({ label }: { label: string }) {
   return (
     <AnimatedSection>
-      {/* Law of Proximity: heading visually belongs to the group below it */}
       <div className="flex items-center gap-5 mb-8">
         <div className="flex-1 h-px bg-white/10" />
         <h3
@@ -196,7 +278,6 @@ function CategoryHeading({ label }: { label: string }) {
 export function MenuSection() {
   return (
     <section id="menu" className="bg-black py-20 md:py-32 px-5 md:px-10">
-      {/* Wider container fills the viewport better (Law of Uniform Connectedness) */}
       <div className="max-w-[1400px] mx-auto">
 
         {/* Section header */}
@@ -218,8 +299,7 @@ export function MenuSection() {
           </div>
         </AnimatedSection>
 
-        {/* ── Signature items (Kacchi & Kabab) ───────────────────── */}
-        {/* Miller's Law: 4 items, easy to scan; 2-col on mobile → 4-col desktop */}
+        {/* ── Signature Items (Kacchi & Kabab) ───────────────────── */}
         <CategoryHeading label="Signature Items" />
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 md:gap-5">
           {menuItems.map((item, i) => (
@@ -227,28 +307,27 @@ export function MenuSection() {
           ))}
         </div>
 
-        {/* ── Main Dishes ─────────────────────────────────────────── */}
-        {/* Hick's Law: group similar items — 6 cols shows full category at a glance */}
+        {/* ── Main Dishes (consolidated — 3 cards instead of 6) ─── */}
         <div className="mt-16">
           <CategoryHeading label="Main Dishes" />
-          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-4 md:gap-5">
+          <div className="grid grid-cols-2 sm:grid-cols-3 gap-4 md:gap-5">
             {mainDishItems.map((item, i) => (
               <MenuCard key={item.name} item={item} delay={i * 0.07} />
             ))}
           </div>
         </div>
 
-        {/* ── Beverages & Sides ───────────────────────────────────── */}
+        {/* ── Beverages & Sides (consolidated — 4 cards instead of 6) */}
         <div className="mt-16">
           <CategoryHeading label="Beverages & Sides" />
-          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-4 md:gap-5">
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 md:gap-5">
             {beverageItems.map((item, i) => (
               <MenuCard key={item.name} item={item} delay={i * 0.07} />
             ))}
           </div>
         </div>
 
-        {/* Global CTA — Jakob's Law: single prominent action after browsing */}
+        {/* Global CTA */}
         <AnimatedSection>
           <div className="mt-16 text-center border-t border-white/8 pt-14">
             <p
